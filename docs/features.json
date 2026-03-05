@@ -1,0 +1,87 @@
+{
+  "project": "llmatch",
+  "version": "0.1.0",
+  "features": [
+    {
+      "id": "hardware_detection",
+      "name": "Hardware Detection",
+      "description": "Detect RAM, CPU cores, GPU VRAM, and acceleration backend",
+      "status": "planned",
+      "cli": "python main.py system",
+      "outputs": ["ram_gb", "cpu_cores", "gpu_vram_gb", "backend"]
+    },
+    {
+      "id": "model_database",
+      "name": "Model Database",
+      "description": "Load and cache hf_models.json from llmfit repo (206+ models)",
+      "status": "planned",
+      "cli": "python main.py list",
+      "flags": ["--refresh"]
+    },
+    {
+      "id": "fit_ranking",
+      "name": "Fit Ranking",
+      "description": "Score and rank models by how well they fit your hardware",
+      "status": "planned",
+      "cli": "python main.py",
+      "flags": ["--top <n>", "--perfect", "--use-case <category>", "--json"]
+    },
+    {
+      "id": "scoring_engine",
+      "name": "Scoring Engine",
+      "description": "Multi-dimensional scoring: Quality, Speed, Fit, Context",
+      "status": "planned",
+      "dimensions": ["quality", "speed", "fit", "context"],
+      "fit_levels": ["perfect", "good", "marginal", "too_tight"],
+      "run_modes": ["gpu", "cpu+gpu", "cpu", "moe"]
+    },
+    {
+      "id": "dynamic_quantization",
+      "name": "Dynamic Quantization Selection",
+      "description": "Pick best quantization that fits available memory",
+      "status": "planned",
+      "quant_hierarchy": ["Q8_0", "Q6_K", "Q5_K_M", "Q4_K_M", "Q3_K_M", "Q2_K"]
+    },
+    {
+      "id": "moe_support",
+      "name": "MoE Architecture Support",
+      "description": "Reduce memory estimates for Mixture-of-Experts models using active expert count",
+      "status": "planned"
+    },
+    {
+      "id": "search",
+      "name": "Model Search",
+      "description": "Search models by name, provider, or size",
+      "status": "planned",
+      "cli": "python main.py search <query>"
+    },
+    {
+      "id": "model_info",
+      "name": "Model Detail View",
+      "description": "Show detailed info for a single model",
+      "status": "planned",
+      "cli": "python main.py info <model_name>"
+    },
+    {
+      "id": "memory_override",
+      "name": "GPU Memory Override",
+      "description": "Manually specify VRAM when autodetection fails",
+      "status": "planned",
+      "flags": ["--memory <size>"]
+    },
+    {
+      "id": "context_cap",
+      "name": "Context Length Cap",
+      "description": "Cap context length used for memory estimation",
+      "status": "planned",
+      "flags": ["--max-context <n>"]
+    },
+    {
+      "id": "json_output",
+      "name": "JSON Output",
+      "description": "Machine-readable output for all commands",
+      "status": "planned",
+      "flags": ["--json"]
+    }
+  ]
+}

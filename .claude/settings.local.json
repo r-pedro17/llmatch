@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo:*)",
+      "Bash(gh api:*)",
+      "Bash(gh release:*)",
+      "Read(//c/Users/RPedro/tools//**)",
+      "Bash(echo \"PATH=$PATH\")",
+      "Bash(unzip:*)",
+      "Bash(/c/Users/RPedro/tools/bin/llmfit.exe:*)",
+      "Bash(chmod +x:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(powershell.exe:*)"
+    ]
+  }
+}
