@@ -2,7 +2,7 @@
 
 ## Overview
 
-pyfit is a single-process CLI tool. On each run it detects hardware, loads the model database, scores every model, and prints a ranked table.
+llmatch is a single-process CLI tool. On each run it detects hardware, loads the model database, scores every model, and prints a ranked table.
 
 ## Data flow
 
@@ -46,4 +46,4 @@ Quantization hierarchy (best to worst): Q8_0, Q6_K, Q5_K_M, Q4_K_M, Q3_K_M, Q2_K
 Renders the scored model list as a formatted table to stdout, or as JSON with `--json`.
 
 ## Caching
-`data/hf_models.json` is fetched once and reused. Pass `--refresh` to re-fetch.
+`data/hf_models.json` is fetched on first run and auto-refreshed every 7 days. Pass `--refresh` to force re-fetch.

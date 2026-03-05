@@ -1,6 +1,9 @@
 import json
 import os
+import sys
+import time
 import urllib.request
+import urllib.error
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -8,6 +11,7 @@ DATA_FILE = os.path.join(os.path.dirname(__file__), "data", "hf_models.json")
 UPSTREAM_URL = (
     "https://raw.githubusercontent.com/AlexsJones/llmfit/main/data/hf_models.json"
 )
+CACHE_TTL_DAYS = 7
 
 
 @dataclass
@@ -35,22 +39,48 @@ class Model:
     gguf_sources: List[str] = field(default_factory=list)
 
 
-def _fetch_and_cache() -> None:
+def _is_cache_stale() -> bool:
+    """Return True if cached data file is older than CACHE_TTL_DAYS."""
+    if not os.path.exists(DATA_FILE):
+        return True
+    age_days = (time.time() - os.path.getmtime(DATA_FILE)) / 86400
+    return age_days > CACHE_TTL_DAYS
+
+
+def _fetch_and_cache() -> bool:
+    """Fetch model database from upstream. Returns True on success."""
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    print(f"Fetching model database from upstream...")
-    with urllib.request.urlopen(UPSTREAM_URL, timeout=15) as resp:
-        data = resp.read()
-    with open(DATA_FILE, "wb") as f:
-        f.write(data)
-    print(f"Cached {len(json.loads(data))} models to {DATA_FILE}")
+    print("Fetching model database from upstream...")
+    try:
+        with urllib.request.urlopen(UPSTREAM_URL, timeout=15) as resp:
+            data = resp.read()
+        # Validate JSON before writing to avoid corrupting the cache
+        models = json.loads(data)
+        with open(DATA_FILE, "wb") as f:
+            f.write(data)
+        print(f"Cached {len(models)} models to {DATA_FILE}")
+        return True
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+        print(f"Warning: failed to fetch model database: {e}", file=sys.stderr)
+        return False
 
 
 def load(refresh: bool = False) -> List[Model]:
     if refresh or not os.path.exists(DATA_FILE):
-        _fetch_and_cache()
+        if not _fetch_and_cache() and not os.path.exists(DATA_FILE):
+            print("Error: no cached model database and fetch failed.", file=sys.stderr)
+            sys.exit(1)
+    elif _is_cache_stale():
+        if not _fetch_and_cache():
+            print("Using stale cache (fetch failed).", file=sys.stderr)
 
-    with open(DATA_FILE, encoding="utf-8") as f:
-        raw = json.load(f)
+    try:
+        with open(DATA_FILE, encoding="utf-8") as f:
+            raw = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"Error: corrupted model database: {e}", file=sys.stderr)
+        print("Try running with --refresh to re-download.", file=sys.stderr)
+        sys.exit(1)
 
     models = []
     for entry in raw:

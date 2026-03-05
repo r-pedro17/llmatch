@@ -57,7 +57,7 @@ def cmd_search(args):
 
     if not results:
         print(f"No models matching '{args.query}'.")
-        sys.exit(0)
+        sys.exit(1)
 
     if args.json:
         display.print_json(results, top=args.top)

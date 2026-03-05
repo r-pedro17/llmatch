@@ -60,7 +60,9 @@ def _model_memory_gb(model: Model, quant: str) -> float:
         total_params = model.parameters_raw
         inactive_params = total_params - active_params
         active_gb = active_params * bits / 8 / 1e9
-        inactive_gb = inactive_params * 2.0 / 8 / 1e9  # Q2 for inactive
+        # Inactive experts stay in RAM at ~2-bit precision (minimal footprint
+        # since they're not used during inference, only loaded for routing)
+        inactive_gb = inactive_params * 2.0 / 8 / 1e9
         return active_gb + inactive_gb
     return model.parameters_raw * bits / 8 / 1e9
 
@@ -89,7 +91,7 @@ def _score_quality(model: Model, quant: str) -> float:
     """0–100. Based on log-scaled parameter count and quant quality."""
     if model.parameters_raw <= 0:
         return 0.0
-    # Log scale: 1B → ~30, 7B → ~53, 70B → ~77, 700B → ~100
+    # Log scale: 1B → ~50, 7B → ~64, 70B → ~81, 700B → ~97
     param_score = min(100.0, math.log10(model.parameters_raw / 1e6) / math.log10(1e6) * 100)
     param_score = max(0.0, param_score)
     quality_mult = QUANT_QUALITY.get(quant, 0.88)
@@ -136,9 +138,8 @@ def _score_fit(util: float) -> float:
     return round(util / 0.25 * 30, 1)
 
 
-def _score_context(model: Model) -> float:
+def _score_context(ctx: int) -> float:
     """0–100. More context is generally better, diminishing returns."""
-    ctx = model.context_length
     if ctx <= 0:
         return 0.0
     # 4K → ~60, 32K → ~85, 128K → ~95, 1M+ → ~100
@@ -146,13 +147,14 @@ def _score_context(model: Model) -> float:
     return round(score, 1)
 
 
-def _run_mode(model: Model, hw: HardwareProfile) -> str:
+def _run_mode(model: Model, quant: str, hw: HardwareProfile) -> str:
     if model.is_moe:
         return "moe"
     if hw.gpu_vram_gb > 0:
+        mem = _model_memory_gb(model, quant)
+        if mem > hw.gpu_vram_gb:
+            return "cpu+gpu"
         return "gpu"
-    if hw.ram_gb > 0:
-        return "cpu"
     return "cpu"
 
 
@@ -186,7 +188,7 @@ def score_all(
         sq = _score_quality(model, quant)
         ss = _score_speed(model, quant, hw)
         sf = _score_fit(util)
-        sc = _score_context(model)
+        sc = _score_context(ctx)
         total = round(
             sq * weights["quality"]
             + ss * weights["speed"]
@@ -201,7 +203,7 @@ def score_all(
             best_quant=quant,
             est_vram_gb=round(mem_gb, 2),
             fit_level=fit,
-            run_mode=_run_mode(model, hw),
+            run_mode=_run_mode(model, quant, hw),
             est_tps=tps,
             score_quality=sq,
             score_speed=ss,
