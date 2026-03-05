@@ -19,7 +19,6 @@ def cmd_rank(args):
     hw = hardware.detect()
     if args.memory:
         hw.gpu_vram_gb = args.memory
-        hw.backend = hw.backend if hw.backend != "cpu" else "cpu"
 
     all_models = model_db.load(refresh=args.refresh)
 

@@ -59,6 +59,8 @@ def _detect_ram_gb() -> float:
         if result.returncode == 0:
             return int(result.stdout.strip()) / (1024 ** 3)
 
+    import sys
+    print("Warning: could not detect system RAM.", file=sys.stderr)
     return 0.0
 
 
