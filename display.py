@@ -50,7 +50,7 @@ def print_hardware(hw: HardwareProfile) -> None:
 
 
 def print_table(scored: List[ScoredModel], top: Optional[int] = None) -> None:
-    if top:
+    if top is not None:
         scored = scored[:top]
     if not scored:
         print("No models fit your hardware.")
@@ -108,7 +108,7 @@ def print_table(scored: List[ScoredModel], top: Optional[int] = None) -> None:
 
 
 def print_json(scored: List[ScoredModel], top: Optional[int] = None) -> None:
-    if top:
+    if top is not None:
         scored = scored[:top]
     out = []
     for sm in scored:

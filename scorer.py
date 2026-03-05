@@ -80,6 +80,8 @@ def _fit_level(util: float) -> str:
     """Classify memory utilization into fit level."""
     if util > 1.0:
         return "too_tight"
+    if util > 0.8:
+        return "good"
     if util >= 0.5:
         return "perfect"
     if util >= 0.25:

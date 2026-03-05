@@ -99,6 +99,9 @@ class TestFitLevel(unittest.TestCase):
         self.assertEqual(_fit_level(0.5), "perfect")
         self.assertEqual(_fit_level(0.8), "perfect")
 
+    def test_above_sweet_spot(self):
+        self.assertEqual(_fit_level(0.9), "good")
+
     def test_good(self):
         self.assertEqual(_fit_level(0.3), "good")
 
