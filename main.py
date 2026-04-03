@@ -2,6 +2,7 @@
 """llmatch — rank LLM models by how well they fit your hardware."""
 
 import argparse
+import json
 import sys
 
 import hardware
@@ -84,7 +85,6 @@ def cmd_info(args):
 def cmd_list(args):
     all_models = model_db.load(refresh=args.refresh)
     if args.json:
-        import json
         out = [{"name": m.name, "provider": m.provider, "parameters": m.parameter_count,
                 "use_case": m.use_case, "architecture": m.architecture} for m in all_models]
         print(json.dumps(out, indent=2))

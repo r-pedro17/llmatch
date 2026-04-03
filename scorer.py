@@ -5,16 +5,17 @@ from typing import List, Optional
 from hardware import HardwareProfile
 from models import Model
 
-# Bits per parameter for each quantization level
-QUANT_BITS = {
-    "Q8_0":   8.0,
-    "Q6_K":   6.6,
-    "Q5_K_M": 5.7,
-    "Q4_K_M": 4.8,
-    "Q3_K_M": 3.9,
-    "Q2_K":   2.6,
-}
-QUANT_ORDER = ["Q8_0", "Q6_K", "Q5_K_M", "Q4_K_M", "Q3_K_M", "Q2_K"]
+# Quantization levels: (name, bits_per_param) — ordered best to most compressed
+QUANT_TABLE = [
+    ("Q8_0",   8.0),
+    ("Q6_K",   6.6),
+    ("Q5_K_M", 5.7),
+    ("Q4_K_M", 4.8),
+    ("Q3_K_M", 3.9),
+    ("Q2_K",   2.6),
+]
+QUANT_ORDER = [q for q, _ in QUANT_TABLE]
+QUANT_BITS  = dict(QUANT_TABLE)
 
 # Quality multiplier per quantization (relative to Q8_0 = 1.0)
 QUANT_QUALITY = {

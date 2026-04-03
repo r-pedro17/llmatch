@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import json
 import sys
 from typing import List, Optional
 
-from hardware import HardwareProfile
 from scorer import ScoredModel
 
 # ANSI color codes — disabled on non-TTY

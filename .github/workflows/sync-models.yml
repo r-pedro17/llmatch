@@ -1,0 +1,39 @@
+name: Sync Model Database
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Download latest model database
+        run: |
+          curl -s https://raw.githubusercontent.com/AlexsJones/llmfit/main/data/hf_models.json -o hf_models_latest.json
+
+      - name: Compare and commit if changed
+        run: |
+          if ! cmp -s data/hf_models.json hf_models_latest.json; then
+            mv hf_models_latest.json data/hf_models.json
+            MODEL_COUNT=$(python3 -c "import json; print(len(json.load(open('data/hf_models.json'))))")
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data/hf_models.json
+            git commit -m "chore: sync model database ($MODEL_COUNT models)"
+            git push
+          else
+            rm hf_models_latest.json
+            echo "Model database is up to date"
+          fi

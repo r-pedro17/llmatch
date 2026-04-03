@@ -19,7 +19,7 @@ main.py
 
 ### hardware.py
 Detects system specs and returns a `HardwareProfile` dataclass.
-- RAM: `sysinfo`-equivalent via `/proc/meminfo` (Linux) or `wmic` / `psutil`-free approach on Windows using `ctypes`
+- RAM: Linux via `/proc/meminfo`, Windows via `ctypes` / `GlobalMemoryStatusEx`, macOS via `sysctl`
 - CPU cores: `os.cpu_count()`
 - GPU VRAM: subprocess call to `nvidia-smi`, `rocm-smi`, or `system_profiler` (macOS)
 - Backend: inferred from available GPU tooling (CUDA, ROCm, Metal, CPU)

@@ -50,18 +50,17 @@ def _is_cache_stale() -> bool:
 def _fetch_and_cache() -> bool:
     """Fetch model database from upstream. Returns True on success."""
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    print("Fetching model database from upstream...")
+    sys.stderr.write("Fetching model database from upstream...\n")
     try:
         with urllib.request.urlopen(UPSTREAM_URL, timeout=15) as resp:
             data = resp.read()
-        # Validate JSON before writing to avoid corrupting the cache
         models = json.loads(data)
         with open(DATA_FILE, "wb") as f:
             f.write(data)
-        print(f"Cached {len(models)} models to {DATA_FILE}")
+        sys.stderr.write(f"Cached {len(models)} models to {DATA_FILE}\n")
         return True
     except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
-        print(f"Warning: failed to fetch model database: {e}", file=sys.stderr)
+        sys.stderr.write(f"Warning: failed to fetch model database: {e}\n")
         return False
 
 

@@ -1,5 +1,13 @@
 __pycache__/
 *.pyc
 *.pyo
-data/hf_models.json
+.env
+.venv
+*.egg-info/
+dist/
+build/
+.DS_Store
+_archive/
+.claudeignore
 .claude/
+data/hf_models.json
