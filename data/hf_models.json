@@ -154276,6 +154276,37 @@
     "active_parameters": 18223715635
   },
   {
+    "name": "MiniMaxAI/MiniMax-M3",
+    "provider": "minimaxai",
+    "parameter_count": "228.7B",
+    "parameters_raw": 228703644928,
+    "min_ram_gb": 127.8,
+    "recommended_ram_gb": 213.0,
+    "min_vram_gb": 117.1,
+    "quantization": "Q4_K_M",
+    "format": "gguf",
+    "context_length": 524288,
+    "use_case": "Latest flagship: 512K context, 128K max output, image input",
+    "capabilities": [],
+    "pipeline_tag": "text-generation",
+    "architecture": "minimax_m2",
+    "hf_downloads": 0,
+    "hf_likes": 0,
+    "release_date": "2026-06-03",
+    "num_hidden_layers": 62,
+    "num_attention_heads": 48,
+    "num_key_value_heads": 8,
+    "head_dim": 128,
+    "hidden_size": 3072,
+    "vocab_size": 200064,
+    "moe_intermediate_size": 1536,
+    "shared_expert_intermediate_size": null,
+    "is_moe": true,
+    "num_experts": 256,
+    "active_experts": 8,
+    "active_parameters": 10000000000
+  },
+  {
     "name": "MiniMaxAI/MiniMax-M2.7",
     "provider": "minimaxai",
     "parameter_count": "228.7B",
@@ -154286,7 +154317,7 @@
     "quantization": "Q4_K_M",
     "format": "gguf",
     "context_length": 204800,
-    "use_case": "Lightweight, edge deployment",
+    "use_case": "Previous flagship, enhanced reasoning and coding",
     "capabilities": [],
     "pipeline_tag": "text-generation",
     "architecture": "minimax_m2",
@@ -154312,47 +154343,6 @@
       },
       {
         "repo": "mradermacher/MiniMax-M2.7-GGUF",
-        "provider": "mradermacher"
-      }
-    ]
-  },
-  {
-    "name": "MiniMaxAI/MiniMax-M2.5",
-    "provider": "minimaxai",
-    "parameter_count": "228.7B",
-    "parameters_raw": 228703644928,
-    "min_ram_gb": 127.8,
-    "recommended_ram_gb": 213.0,
-    "min_vram_gb": 117.1,
-    "quantization": "Q4_K_M",
-    "format": "gguf",
-    "context_length": 196608,
-    "use_case": "Lightweight, edge deployment",
-    "capabilities": [],
-    "pipeline_tag": "text-generation",
-    "architecture": "minimax_m2",
-    "hf_downloads": 792101,
-    "hf_likes": 1481,
-    "release_date": "2026-02-12",
-    "num_hidden_layers": 62,
-    "num_attention_heads": 48,
-    "num_key_value_heads": 8,
-    "head_dim": 128,
-    "hidden_size": 3072,
-    "vocab_size": 200064,
-    "moe_intermediate_size": 1536,
-    "shared_expert_intermediate_size": null,
-    "is_moe": true,
-    "num_experts": 256,
-    "active_experts": 8,
-    "active_parameters": 10000000000,
-    "gguf_sources": [
-      {
-        "repo": "unsloth/MiniMax-M2.5-GGUF",
-        "provider": "unsloth"
-      },
-      {
-        "repo": "mradermacher/MiniMax-M2.5-GGUF",
         "provider": "mradermacher"
       }
     ]
