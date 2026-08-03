@@ -5,11 +5,11 @@ import time
 import urllib.request
 import urllib.error
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "data", "hf_models.json")
 UPSTREAM_URL = (
-    "https://raw.githubusercontent.com/AlexsJones/llmfit/main/data/hf_models.json"
+    "https://raw.githubusercontent.com/AlexsJones/llmfit/main/llmfit-core/data/hf_models.json"
 )
 CACHE_TTL_DAYS = 7
 
@@ -18,12 +18,12 @@ CACHE_TTL_DAYS = 7
 class Model:
     name: str
     provider: str
-    parameter_count: str       # human-readable: "7B", "70B"
-    parameters_raw: int        # raw parameter count
+    parameter_count: str
+    parameters_raw: int
     min_ram_gb: float
     recommended_ram_gb: float
     min_vram_gb: float
-    quantization: str          # default/recommended quant
+    quantization: str
     context_length: int
     use_case: str
     capabilities: List[str]
@@ -48,18 +48,29 @@ def _is_cache_stale() -> bool:
 
 
 def _fetch_and_cache() -> bool:
-    """Fetch model database from upstream. Returns True on success."""
+    """Fetch and validate the model database. Return True on success."""
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
     sys.stderr.write("Fetching model database from upstream...\n")
     try:
-        with urllib.request.urlopen(UPSTREAM_URL, timeout=15) as resp:
+        request = urllib.request.Request(
+            UPSTREAM_URL,
+            headers={"User-Agent": "llmatch-model-sync"},
+        )
+        with urllib.request.urlopen(request, timeout=30) as resp:
             data = resp.read()
+
         models = json.loads(data)
-        with open(DATA_FILE, "wb") as f:
+        if not isinstance(models, list) or not models:
+            raise ValueError("upstream database is not a non-empty JSON list")
+
+        temp_file = f"{DATA_FILE}.tmp"
+        with open(temp_file, "wb") as f:
             f.write(data)
+        os.replace(temp_file, DATA_FILE)
+
         sys.stderr.write(f"Cached {len(models)} models to {DATA_FILE}\n")
         return True
-    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError, json.JSONDecodeError) as e:
         sys.stderr.write(f"Warning: failed to fetch model database: {e}\n")
         return False
 

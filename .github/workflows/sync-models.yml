@@ -2,11 +2,15 @@ name: Sync Model Database
 
 on:
   schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: sync-model-database
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -15,21 +19,35 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Download latest model database
+      - name: Download and validate latest model database
         run: |
-          curl -s https://raw.githubusercontent.com/AlexsJones/llmfit/main/data/hf_models.json -o hf_models_latest.json
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            https://raw.githubusercontent.com/AlexsJones/llmfit/main/llmfit-core/data/hf_models.json \
+            --output hf_models_latest.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('hf_models_latest.json')
+          models = json.loads(path.read_text(encoding='utf-8'))
+          if not isinstance(models, list) or not models:
+              raise SystemExit('Upstream database is not a non-empty JSON list')
+          print(f'Validated {len(models)} upstream models')
+          PY
 
       - name: Compare and commit if changed
         run: |
+          set -euo pipefail
           if ! cmp -s data/hf_models.json hf_models_latest.json; then
             mv hf_models_latest.json data/hf_models.json
-            MODEL_COUNT=$(python3 -c "import json; print(len(json.load(open('data/hf_models.json'))))")
+            MODEL_COUNT=$(python3 -c "import json; print(len(json.load(open('data/hf_models.json', encoding='utf-8'))))")
             git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add data/hf_models.json
             git commit -m "chore: sync model database ($MODEL_COUNT models)"
             git push
